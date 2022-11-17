@@ -25,7 +25,7 @@ class Picker(Thread):
             count +=1
             try:
                 open_doc.Workbooks.Open(
-                    r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten password_EXCEL\book.xlsx',
+                    r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\НАТА.xlsx',
                     False,
                     True,
                     None,
@@ -127,6 +127,7 @@ def main():
 
     print(f"Finished at - {datetime.utcfromtimestamp(time.time()).strftime('%H:%M:%S')}")
     print(f"Password cracking time - {time.time() - start_timestamp}")
+
 
 if __name__ == '__main__':
     main()

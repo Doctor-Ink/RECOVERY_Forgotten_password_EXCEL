@@ -3,7 +3,7 @@ import time
 import win32com.client as client
 from string import digits, punctuation, ascii_letters
 
-PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten password_EXCEL\book.xlsx'
+PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\НАТА.xlsx'
 print("***Hello friend!***")
 
 
@@ -108,24 +108,24 @@ def main():
     count = 0
     while True:
         # шаг 2 - перебираем из 150 популярных паролей в России
-        my_list_150 = get_list_150()
-        for item in my_list_150:
-            count += 1
-            result = password_entry(password=item, count=count)
-            if result is False:
-                break
-        if result is False:
-            break
-
-        # шаг 3 - перебор списка из 10 000 популярных паролей в мире
-        my_list_10K = get_list_10K()
-        for item in my_list_10K:
-            count += 1
-            result = password_entry(password=item, count=count)
-            if result is False:
-                break
-        if result is False:
-            break
+        # my_list_150 = get_list_150()
+        # for item in my_list_150:
+        #     count += 1
+        #     result = password_entry(password=item, count=count)
+        #     if result is False:
+        #         break
+        # if result is False:
+        #     break
+        #
+        # # шаг 3 - перебор списка из 10 000 популярных паролей в мире
+        # my_list_10K = get_list_10K()
+        # for item in my_list_10K:
+        #     count += 1
+        #     result = password_entry(password=item, count=count)
+        #     if result is False:
+        #         break
+        # if result is False:
+        #     break
 
         # шаг 4 - бональный перебор всех возможных комбинаций
         result = enumeration_all_variant(password_length=password_length, possible_symbols=possible_symbols, count=count)
