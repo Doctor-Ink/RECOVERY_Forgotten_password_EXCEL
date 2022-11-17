@@ -1,9 +1,11 @@
 import itertools
 import time
+import datetime
+
 import win32com.client as client
 from string import digits, punctuation, ascii_letters
 
-PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\НАТА.xlsx'
+PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xlsx'
 print("***Hello friend!***")
 
 # В однопоточном режиме 100 паролей перебираются   за 18 секунд
@@ -90,6 +92,19 @@ def enumeration_all_variant(password_length, possible_symbols, count):
     return False
 
 
+def time_running_script(min_characters, max_characters, possible_symbols):
+    total_count = 0
+    for step in range(min_characters, max_characters + 1):
+        # print(f'Для пароля из {step} символа(ов) - \n{len(possible_symbols) ** step} комбинаций')
+        total_count += len(possible_symbols) ** step
+    try:
+        time_format = str(datetime.timedelta(seconds= (total_count * 0.18)))
+        print(f"Общее число комбинаций - {total_count}\n "
+              f"Расчётное время работы - {time_format} секунд")
+    except Exception as exc:
+        print('Python не переведёт это число в дни и годы')
+
+
 def time_track(func):
     # функция-декаратор, которая считает время работы
     def surogate(*args, **kwargs):
@@ -107,6 +122,7 @@ def time_track(func):
 def main():
     # шаг 1 запрос исходных данных
     password_length, possible_symbols = input_initial_data()
+    time_running_script(min_characters=password_length[0], max_characters=password_length[1], possible_symbols=possible_symbols)
 
     count = 0
     while True:

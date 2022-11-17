@@ -9,13 +9,28 @@ import pythoncom
 
 PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xlsx'
 
+# разделим на 4 потока, пароли будем забирать из генератора
+
+def combination_generator_first(password_length, possible_symbols):
+    # в этом генероторе проходим все конбинации кроме последней
+    for pass_length in range(password_length[0], password_length[1]):
+            for password in itertools.product(possible_symbols, repeat=pass_length):
+                password = "".join(password)
+                yield password
+
+def combination_generator_second(password_length, possible_symbols):
+    # этот генеротор проходит все конбинации последнего числа длины пароля "123456" - все комбинации из 6 символов
+    for pass_length in range(password_length[1], password_length[1] + 1):
+        for password in itertools.product(possible_symbols, repeat=pass_length):
+            password = "".join(password)
+            yield password
+
+
 class Picker(Thread):
-    def __init__(self, PATH, *args, **kwargs):
+    def __init__(self, PATH, password, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.PATH = PATH
-        self.password_length = None
-        self.possible_symbols = None
-        self.trigger = True
+        self.password = password
 
     def run(self):
         # Сразу перед инициализацией DCOM в run()
@@ -36,45 +51,44 @@ class Picker(Thread):
                 False,
                 True,
                 None,
-                password
+                self.password
             )
             time.sleep(0.1)
-            print(f"[INFO] ---------- Password is: {password}")
+            print(f"[INFO] ---------- Password is: {self.password}")
             with open('password.txt', mode='w', encoding='utf-8') as file:
-                file.write(password)
+                file.write(self.password)
             return False
         except:
-            print(f"Attempt {count} Incorrect {password}")
+            print(f"Incorrect {self.password}")
         return True
 
 def input_initial_data():
-    print("***Hello friend!***")
-    try:
+    # функция запрашивает исходные данные
+
+    while True:
         password_length = input("Введите длину пароля, от скольки - до скольки символов, например 3 - 7: ")
-        password_length = [int(item) for item in password_length.split("-")]
-    except Exception:
-        print('Проверьте введённые данные')
+        if ('-' in password_length) and (password_length.replace('-', '').isdigit()):
+            password_length = [int(item) for item in password_length.split('-')]
+        else:
+            print('некорректные данные')
+            continue
 
-    print("Если пароль содержит только цифры, введите: 1\nЕсли пароль содержит только буквы, введите: 2\n"
-          "Если пароль содержит цифры и буквы введите: 3\nЕсли пароль содержит цифры, буквы и спецсимволы введите: 4")
+        choice = input("Если пароль содержит только цифры, введите: 1\nЕсли пароль содержит только буквы, введите: 2\n"
+                       "Если пароль содержит цифры и буквы введите: 3\n"
+                       "Если пароль содержит цифры, буквы и спецсимволы введите: 4\n------------>   ")
 
-    try:
-        choice = int(input(": "))
+        dict_value = {
+            '1': digits,  # 0123456789
+            '2': ascii_letters,  # abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+            '3': digits + ascii_letters,  # 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+            '4': digits + ascii_letters + punctuation,  # !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+        }
 
-        if choice == 1:
-            possible_symbols = digits
-        elif choice == 2:
-            possible_symbols = ascii_letters
-        elif choice == 3:
-            possible_symbols = digits + ascii_letters
-        elif choice == 4:
-            possible_symbols = digits + ascii_letters + punctuation
+        if choice in dict_value.keys():
+            possible_symbols = dict_value[choice]
+            return password_length, possible_symbols
         else:
             print('Введите корректные данные!!!')
-        print(possible_symbols)
-    except:
-        print('Введите корректные данные....')
-    return possible_symbols, password_length
 
 
 def get_list_150():
@@ -92,16 +106,6 @@ def get_list_10K():
         for line in file.readlines():
             my_list_10K.append(line[:-1:])
     return my_list_10K
-
-
-# def get_all_variant(password_length):
-#     all_variant_list = []
-#     for pass_length in range(password_length[0], password_length[1] + 1):
-#         for password in itertools.product(possible_symbols, repeat=pass_length):
-#             password = "".join(password)
-#             recovery_excel_password()
-#     print(all_variant_list)
-#     return all_variant_list
 
 
 def main():
