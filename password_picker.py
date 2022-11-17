@@ -6,6 +6,9 @@ from string import digits, punctuation, ascii_letters
 PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\НАТА.xlsx'
 print("***Hello friend!***")
 
+# В однопоточном режиме 100 паролей перебираются   за 18 секунд
+#                       1000 паролей перебираются  за 180 секунд (3 минуты)
+#                       10000 паролей перебираются за 1800 секунд (30 минут)
 
 def input_initial_data():
     # функция запрашивает исходные данные
@@ -23,10 +26,10 @@ def input_initial_data():
                        "Если пароль содержит цифры, буквы и спецсимволы введите: 4\n------------>   ")
 
         dict_value = {
-            '1': digits,
-            '2': ascii_letters,
-            '3': digits + ascii_letters,
-            '4': digits + ascii_letters + punctuation,
+            '1': digits,  # 0123456789
+            '2': ascii_letters,  # abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+            '3': digits + ascii_letters,  # 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+            '4': digits + ascii_letters + punctuation,  # !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
         }
 
         if choice in dict_value.keys():
@@ -108,24 +111,24 @@ def main():
     count = 0
     while True:
         # шаг 2 - перебираем из 150 популярных паролей в России
-        # my_list_150 = get_list_150()
-        # for item in my_list_150:
-        #     count += 1
-        #     result = password_entry(password=item, count=count)
-        #     if result is False:
-        #         break
-        # if result is False:
-        #     break
-        #
-        # # шаг 3 - перебор списка из 10 000 популярных паролей в мире
-        # my_list_10K = get_list_10K()
-        # for item in my_list_10K:
-        #     count += 1
-        #     result = password_entry(password=item, count=count)
-        #     if result is False:
-        #         break
-        # if result is False:
-        #     break
+        my_list_150 = get_list_150()
+        for item in my_list_150:
+            count += 1
+            result = password_entry(password=item, count=count)
+            if result is False:
+                break
+        if result is False:
+            break
+
+        # шаг 3 - перебор списка из 10 000 популярных паролей в мире
+        my_list_10K = get_list_10K()
+        for item in my_list_10K:
+            count += 1
+            result = password_entry(password=item, count=count)
+            if result is False:
+                break
+        if result is False:
+            break
 
         # шаг 4 - бональный перебор всех возможных комбинаций
         result = enumeration_all_variant(password_length=password_length, possible_symbols=possible_symbols, count=count)

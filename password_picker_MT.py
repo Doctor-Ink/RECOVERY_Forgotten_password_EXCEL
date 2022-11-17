@@ -7,37 +7,45 @@ from threading import Thread
 import pythoncom
 
 
+PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xlsx'
 
 class Picker(Thread):
-    def __init__(self, list, *args, **kwargs):
+    def __init__(self, PATH, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.list = list
+        self.PATH = PATH
         self.password_length = None
         self.possible_symbols = None
+        self.trigger = True
 
     def run(self):
         # Сразу перед инициализацией DCOM в run()
         pythoncom.CoInitializeEx(0)
         # brute excel doc
         count = 0
-        for password in self.list:
-            open_doc = client.Dispatch("Excel.Application")
-            count +=1
-            try:
-                open_doc.Workbooks.Open(
-                    r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\НАТА.xlsx',
-                    False,
-                    True,
-                    None,
-                    password
-                )
-                time.sleep(0.1)
-                print(f"Attempt #{count} Password is: {password}")
-                return True
-            except:
-                print(f"Attempt #{count} Incorrect {password}")
-        return False
+        while self.trigger:
+            for password in self.list:
+                self.password_entry(password=password)
 
+    def password_entry(self):
+        # функция запускает клиент и проверяет пароль
+
+        open_doc = client.Dispatch("Excel.Application")
+        try:
+            open_doc.Workbooks.Open(
+                PATH,
+                False,
+                True,
+                None,
+                password
+            )
+            time.sleep(0.1)
+            print(f"[INFO] ---------- Password is: {password}")
+            with open('password.txt', mode='w', encoding='utf-8') as file:
+                file.write(password)
+            return False
+        except:
+            print(f"Attempt {count} Incorrect {password}")
+        return True
 
 def input_initial_data():
     print("***Hello friend!***")
@@ -102,8 +110,15 @@ def main():
     start_timestamp = time.time()
     print(f"Started at - {datetime.utcfromtimestamp(time.time()).strftime('%H:%M:%S')}")
 
-    # шаг 2 - в многопоточном стиле перебираем два списка
+    # шаг делим исходный массив данных на 4 потока
+    # исходный массив для первого потока:
     my_list_150 = get_list_150()
+
+
+
+
+    # шаг 2 - в многопоточном стиле перебираем два списка
+
     my_list_10K = get_list_10K()
     print(my_list_150)
 
