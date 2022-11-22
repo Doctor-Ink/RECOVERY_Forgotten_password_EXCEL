@@ -121,8 +121,8 @@ def time_track(func):
 @time_track
 def main():
     # шаг 1 запрос исходных данных
-    password_length, possible_symbols = input_initial_data()
-    time_running_script(min_characters=password_length[0], max_characters=password_length[1], possible_symbols=possible_symbols)
+    pass_length, possible_symbols = input_initial_data()
+    time_running_script(min_characters=pass_length[0], max_characters=pass_length[1], possible_symbols=possible_symbols)
 
     count = 0
     while True:
@@ -147,7 +147,7 @@ def main():
             break
 
         # шаг 4 - бональный перебор всех возможных комбинаций
-        result = enumeration_all_variant(password_length=password_length, possible_symbols=possible_symbols, count=count)
+        result = enumeration_all_variant(password_length=pass_length, possible_symbols=possible_symbols, count=count)
         if result is False:
             break
 
