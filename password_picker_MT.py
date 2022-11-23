@@ -18,18 +18,32 @@ PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xl
 
 def combination_generator(password_length, possible_symbols):
     # в этом генероторе проходим все конбинации кроме последней
-    thousand_password = []
-    for pass_length in range(password_length, password_length+1):
-            for password in itertools.product(possible_symbols, repeat=pass_length):
-                password = "".join(password)
-                # print(password)
-                thousand_password.append(password)
-                if len(thousand_password) > 99:
-                    print('Возвращаем из генератора')
-                    yield thousand_password
-                    thousand_password = []
-            print('Возвращаем из генератора')
-            yield thousand_password
+    first_list = []
+    second_list = []
+    third_list = []
+    fourth_list = []
+    count = 0
+    for pass_length in range(password_length[0], password_length[-1] + 1):
+        for password in itertools.product(possible_symbols, repeat=pass_length):
+            password = "".join(password)
+            # print(password)
+            if len(first_list) < 100:
+                first_list.append(password)
+            elif len(second_list) < 100:
+                second_list.append(password)
+            elif len(third_list) < 100:
+                third_list.append(password)
+            elif len(fourth_list) < 100:
+                fourth_list.append(password)
+            else:
+                print(f'[INFO] {count} * 400 is incorrect')
+                count += 1
+                yield first_list, second_list, third_list, fourth_list
+                first_list = []
+                second_list = []
+                third_list = []
+                fourth_list = []
+    yield first_list, second_list, third_list, fourth_list
 
 class Picker(Thread):
     def __init__(self, PATH, list_password, *args, **kwargs):
@@ -134,39 +148,33 @@ def main():
         possible_symbols=possible_symbols
     )
 
-    first = Picker(PATH=PATH, list_password=get_list_150())
-    second = Picker(PATH=PATH, list_password=get_list_10K()[:150])
-    third = Picker(PATH=PATH, list_password=get_list_1000()[:150])
-    first.start()
-    second.start()
-    third.start()
-    first.join()
-    second.join()
-    third.join()
+    # first = Picker(PATH=PATH, list_password=get_list_150())
+    # second = Picker(PATH=PATH, list_password=get_list_10K()[:150])
+    # third = Picker(PATH=PATH, list_password=get_list_1000()[:150])
+    # first.start()
+    # second.start()
+    # third.start()
+    # first.join()
+    # second.join()
+    # third.join()
 
-    # шаг 2 делим исходный массив данных на 2 потока
-    # generation = combination_generator(password_length=list_length_password[0], possible_symbols=possible_symbols)
-    #
-    # for thousand_password in generation:
-    #     first = Picker(PATH=PATH, list_password=thousand_password)
-    #     print('First thread is starting')
-    #     first.start()
-    #
-    # for thousand_password in combination_generator(password_length=list_length_password[1], possible_symbols=possible_symbols):
-    #     second = Picker(PATH=PATH, list_password=thousand_password)
-    #     print('Second thread is starting')
-    #     second.start()
+    # шаг 2 в четырёхпоточном стиле перебираем все варианты
+    generation = combination_generator(password_length=list_length_password, possible_symbols=possible_symbols)
 
+    for one, two, three, four in generation:
+        first = Picker(PATH=PATH, list_password=one)
+        second = Picker(PATH=PATH, list_password=two)
+        third = Picker(PATH=PATH, list_password=three)
+        fourth = Picker(PATH=PATH, list_password=three)
+        first.start()
+        second.start()
+        third.start()
+        fourth.start()
 
-    # шаг 2 - в многопоточном стиле перебираем два списка
-
-    # # шаг 3 - перебор списка из 10 000 популярных паролей в мире
-    #
-    # recovery_excel_password(list=my_list_10K)
-    #
-    # # шаг 4 - бональный перебор всех возможных комбинаций
-    # all_variant_list = get_all_variant(possible_symbols=possible_symbols, list_len=password_length)
-    # recovery_excel_password(list=all_variant_list)
+        first.join()
+        second.join()
+        third.join()
+        fourth.join()
 
 
 if __name__ == '__main__':
