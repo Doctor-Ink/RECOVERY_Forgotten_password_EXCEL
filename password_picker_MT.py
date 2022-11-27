@@ -17,21 +17,23 @@ PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xl
 #                       10000 паролей перебираются за 1800 секунд (30 минут)
 
 class Picker(Thread):
-    def __init__(self, PATH, list_length_password, possible_symbols, *args, **kwargs):
+    def __init__(self, PATH, list_length_password, need_stop, possible_symbols, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.PATH = PATH
         self.list_length_password = list_length_password
         self.possible_symbols = possible_symbols
+        self.need_stop = need_stop
+
 
     def run(self):
         for pass_length in range(self.list_length_password[0], self.list_length_password[-1] + 1):
             for password in itertools.product(self.possible_symbols, repeat=pass_length):
                 password = "".join(password)
-                result = self.password_entry(password=password)
-                if result is False:
-                    return False
+                if self.need_stop:
+                    break
+                self.password_entry(password=password)
+
         print('Не удалось найти пароль, возможно вы ввели неверные данные!!!')
-        return False
 
     def password_entry(self, password):
         # функция запускает клиент и проверяет пароль
@@ -45,7 +47,7 @@ class Picker(Thread):
             print(f"[INFO] ---------- Password is: {password}")
             with open('password.txt', mode='w', encoding='utf-8') as file:
                 file.write(password)
-            return False
+            self.need_stop = True
         except:
             print(f"Incorrect {password}")
 
@@ -124,17 +126,29 @@ def main():
         possible_symbols=possible_symbols
     )
 
-    first = Picker(PATH=PATH, list_length_password=list_length_password[:-3], possible_symbols=possible_symbols)
-    second = Picker(PATH=PATH, list_length_password=list_length_password[-3:-2], possible_symbols=possible_symbols)
-    third = Picker(PATH=PATH, list_length_password=[list_length_password[-1]], possible_symbols=possible_symbols)
+    first = Picker(PATH=PATH, list_length_password=list_length_password[:-2], possible_symbols=possible_symbols, need_stop=False)
+    second = Picker(PATH=PATH, list_length_password=list_length_password[-2:-1], possible_symbols=possible_symbols, need_stop=False)
+    third = Picker(PATH=PATH, list_length_password=[list_length_password[-1]], possible_symbols=possible_symbols, need_stop=False)
     # third = Picker(PATH=PATH, list_password=get_list_1000()[:150])
     first.start()
     second.start()
-    # third.start()
+    third.start()
+    while True:
+        if first.need_stop:
+            second.need_stop = True
+            third.need_stop = True
+            break
+        if second.need_stop:
+            first.need_stop = True
+            third.need_stop = True
+            break
+        if third.need_stop:
+            first.need_stop = True
+            second.need_stop = True
+            break
     first.join()
     second.join()
-    # third.join()
-
+    third.join()
 
 
 
