@@ -16,61 +16,38 @@ PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xl
 #                       1000 паролей перебираются  за 180 секунд (3 минуты)
 #                       10000 паролей перебираются за 1800 секунд (30 минут)
 
-def combination_generator(password_length, possible_symbols):
-    # в этом генероторе проходим все конбинации кроме последней
-    first_list = []
-    second_list = []
-    third_list = []
-    fourth_list = []
-    count = 0
-    for pass_length in range(password_length[0], password_length[-1] + 1):
-        for password in itertools.product(possible_symbols, repeat=pass_length):
-            password = "".join(password)
-            # print(password)
-            if len(first_list) < 100:
-                first_list.append(password)
-            elif len(second_list) < 100:
-                second_list.append(password)
-            elif len(third_list) < 100:
-                third_list.append(password)
-            elif len(fourth_list) < 100:
-                fourth_list.append(password)
-            else:
-                print(f'[INFO] {count} * 400 is incorrect')
-                count += 1
-                yield first_list, second_list, third_list, fourth_list
-                first_list = []
-                second_list = []
-                third_list = []
-                fourth_list = []
-    yield first_list, second_list, third_list, fourth_list
-
 class Picker(Thread):
-    def __init__(self, PATH, list_password, *args, **kwargs):
+    def __init__(self, PATH, list_length_password, possible_symbols, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.PATH = PATH
-        self.list_password = list_password
+        self.list_length_password = list_length_password
+        self.possible_symbols = possible_symbols
 
     def run(self):
-        self.password_entry()
+        for pass_length in range(self.list_length_password[0], self.list_length_password[-1] + 1):
+            for password in itertools.product(self.possible_symbols, repeat=pass_length):
+                password = "".join(password)
+                result = self.password_entry(password=password)
+                if result is False:
+                    return False
+        print('Не удалось найти пароль, возможно вы ввели неверные данные!!!')
+        return False
 
-    def password_entry(self):
+    def password_entry(self, password):
         # функция запускает клиент и проверяет пароль
-
-        for password in self.list_password:
-            try:
-                # Сразу перед инициализацией DCOM в run()
-                pythoncom.CoInitializeEx(0)
-                # brute excel doc
-                open_doc = client.Dispatch("Excel.Application")
-                open_doc.Workbooks.Open(PATH, False, True, None, password)
-                time.sleep(0.1)
-                print(f"[INFO] ---------- Password is: {password}")
-                with open('password.txt', mode='w', encoding='utf-8') as file:
-                    file.write(password)
-                return False
-            except:
-                print(f"Incorrect {password}")
+        try:
+            # Сразу перед инициализацией DCOM в run()
+            pythoncom.CoInitializeEx(0)
+            # brute excel doc
+            open_doc = client.Dispatch("Excel.Application")
+            open_doc.Workbooks.Open(PATH, False, True, None, password)
+            time.sleep(0.1)
+            print(f"[INFO] ---------- Password is: {password}")
+            with open('password.txt', mode='w', encoding='utf-8') as file:
+                file.write(password)
+            return False
+        except:
+            print(f"Incorrect {password}")
 
 def input_initial_data():
     # функция запрашивает исходные данные
@@ -121,7 +98,6 @@ def get_list_150():
             my_list_150.append(line[:-1:])
     return my_list_150
 
-
 def get_list_10K():
     my_list_10K = []
     with open('10000_world_password.txt') as file:
@@ -148,33 +124,18 @@ def main():
         possible_symbols=possible_symbols
     )
 
-    # first = Picker(PATH=PATH, list_password=get_list_150())
-    # second = Picker(PATH=PATH, list_password=get_list_10K()[:150])
+    first = Picker(PATH=PATH, list_length_password=list_length_password[:-3], possible_symbols=possible_symbols)
+    second = Picker(PATH=PATH, list_length_password=list_length_password[-3:-2], possible_symbols=possible_symbols)
+    third = Picker(PATH=PATH, list_length_password=[list_length_password[-1]], possible_symbols=possible_symbols)
     # third = Picker(PATH=PATH, list_password=get_list_1000()[:150])
-    # first.start()
-    # second.start()
+    first.start()
+    second.start()
     # third.start()
-    # first.join()
-    # second.join()
+    first.join()
+    second.join()
     # third.join()
 
-    # шаг 2 в четырёхпоточном стиле перебираем все варианты
-    generation = combination_generator(password_length=list_length_password, possible_symbols=possible_symbols)
 
-    for one, two, three, four in generation:
-        first = Picker(PATH=PATH, list_password=one)
-        second = Picker(PATH=PATH, list_password=two)
-        third = Picker(PATH=PATH, list_password=three)
-        fourth = Picker(PATH=PATH, list_password=three)
-        first.start()
-        second.start()
-        third.start()
-        fourth.start()
-
-        first.join()
-        second.join()
-        third.join()
-        fourth.join()
 
 
 if __name__ == '__main__':
