@@ -15,6 +15,8 @@ PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xl
 # В 4-ёxпоточном режиме 100 паролей перебираются   за 18 секунд
 #                       1000 паролей перебираются  за 180 секунд (3 минуты)
 #                       10000 паролей перебираются за 1800 секунд (30 минут)
+#                       [INFO] ---------- Password is: 101
+#                               Скрипт отработал - 195.68 секунды
 
 class Picker(Thread):
     def __init__(self, PATH, list_length_password, need_stop, possible_symbols, *args, **kwargs):
@@ -93,28 +95,6 @@ def time_running_script(min_characters, max_characters, possible_symbols):
     except Exception as exc:
         print('Python не переведёт это число в дни и годы')
 
-def get_list_150():
-    my_list_150 = []
-    with open('150_russian_password.txt') as file:
-        for line in file.readlines():
-            my_list_150.append(line[:-1:])
-    return my_list_150
-
-def get_list_10K():
-    my_list_10K = []
-    with open('10000_world_password.txt') as file:
-        file.readline()
-        for line in file.readlines():
-            my_list_10K.append(line[:-1:])
-    return my_list_10K
-
-def get_list_1000():
-    my_list_1000 = []
-    with open('1000_world_password.txt') as file:
-        file.readline()
-        for line in file.readlines():
-            my_list_1000.append(line[:-1:])
-    return my_list_1000
 
 @time_track
 def main():
@@ -129,27 +109,18 @@ def main():
     first = Picker(PATH=PATH, list_length_password=list_length_password[:-2], possible_symbols=possible_symbols, need_stop=False)
     second = Picker(PATH=PATH, list_length_password=list_length_password[-2:-1], possible_symbols=possible_symbols, need_stop=False)
     third = Picker(PATH=PATH, list_length_password=[list_length_password[-1]], possible_symbols=possible_symbols, need_stop=False)
-    # third = Picker(PATH=PATH, list_password=get_list_1000()[:150])
     first.start()
     second.start()
     third.start()
     while True:
-        if first.need_stop:
-            second.need_stop = True
-            third.need_stop = True
-            break
-        if second.need_stop:
-            first.need_stop = True
-            third.need_stop = True
-            break
-        if third.need_stop:
+        if first.need_stop or second.need_stop or third.need_stop:
             first.need_stop = True
             second.need_stop = True
+            third.need_stop = True
             break
     first.join()
     second.join()
     third.join()
-
 
 
 if __name__ == '__main__':
