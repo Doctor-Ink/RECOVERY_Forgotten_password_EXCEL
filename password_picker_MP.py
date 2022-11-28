@@ -123,9 +123,7 @@ def main():
     for conn in pipes:
         conn.recv()
         for picker in pickers:
-            need_stop = True
-            picker.conn.send(need_stop)
-            picker.conn.close()
+            picker.kill()
         break
 
     for picker in pickers:
