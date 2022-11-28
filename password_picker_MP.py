@@ -33,7 +33,7 @@ class Picker(Process):
             for password in itertools.product(self.possible_symbols, repeat=pass_length):
                 password = "".join(password)
                 if self.need_stop:
-                    break
+                    return
                 self.password_entry(password=password)
 
         print('Не удалось найти пароль, возможно вы ввели неверные данные!!!')
@@ -50,6 +50,7 @@ class Picker(Process):
             print(f"[INFO] ---------- Password is: {password}")
             with open('password.txt', mode='w', encoding='utf-8') as file:
                 file.write(password)
+            self.need_stop = True
             # будем передавать тригер завершения процесса
             self.conn.send(self.need_stop)
             self.conn.close()
@@ -109,22 +110,26 @@ def main():
         possible_symbols=possible_symbols
     )
 
-    parent_conn, child_conn = Pipe()
-    first = Picker(PATH=PATH, list_length_password=list_length_password[:-2], possible_symbols=possible_symbols, need_stop=False)
-    second = Picker(PATH=PATH, list_length_password=list_length_password[-2:-1], possible_symbols=possible_symbols, need_stop=False)
-    third = Picker(PATH=PATH, list_length_password=[list_length_password[-1]], possible_symbols=possible_symbols, need_stop=False)
-    first.start()
-    second.start()
-    third.start()
-    while True:
-        if first.need_stop or second.need_stop or third.need_stop:
-            first.need_stop = True
-            second.need_stop = True
-            third.need_stop = True
-            break
-    first.join()
-    second.join()
-    third.join()
+    list_variant_symbols = [list_length_password[:-2], list_length_password[-2:-1], [list_length_password[-1]]]
+    pickers, pipes = [], []
+    for symbols in list_variant_symbols:
+        parent_conn, child_conn = Pipe()
+        picker = Picker(PATH=PATH, list_length_password=symbols, conn=child_conn, possible_symbols=possible_symbols)
+        pickers.append(picker)
+        pipes.append(parent_conn)
+    for picker in pickers:
+        picker.start()
+
+    for conn in pipes:
+        conn.recv()
+        for picker in pickers:
+            need_stop = True
+            picker.conn.send(need_stop)
+            picker.conn.close()
+        break
+
+    for picker in pickers:
+        picker.join()
 
 
 if __name__ == '__main__':
