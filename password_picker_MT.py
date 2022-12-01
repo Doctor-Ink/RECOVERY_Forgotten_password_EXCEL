@@ -14,7 +14,7 @@ PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xl
 # разделим на 3 потока
 # В 3-ёxпоточном режиме
 #                       [INFO] ---------- Password is: 101
-#                               Скрипт отработал - 195.68 секунды
+#                               Скрипт отработал - 94.57 секунды
 
 class Picker(Thread):
     def __init__(self, PATH, list_length_password, need_stop, possible_symbols, *args, **kwargs):
