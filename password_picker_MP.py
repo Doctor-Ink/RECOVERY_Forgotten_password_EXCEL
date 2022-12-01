@@ -5,6 +5,7 @@ from datetime import datetime
 import win32com.client as client
 from string import digits, punctuation, ascii_letters
 from multiprocessing import Process, Event, Pipe, Queue
+import queue
 import pythoncom
 import datetime
 from password_picker import time_track
@@ -52,7 +53,7 @@ class Dispatcher(Process):
     def __init__(self, possible_symbols, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.all_process = []
-        self.triger = Queue(maxsize=3)
+        self.triger = queue.Queue(maxsize=3)
         self.possible_symbols = possible_symbols
 
     def add_process(self, list_length_password, ):
@@ -133,7 +134,8 @@ def main():
 
     dispatcher = Dispatcher(possible_symbols=possible_symbols)
     # создаём количество потоков
-    list_variant_symbols = [list_length_password[:-2], list_length_password[-2:-1], [list_length_password[-1]]]
+    # list_variant_symbols = [list_length_password[:-2], list_length_password[-2:-1], [list_length_password[-1]]]
+    list_variant_symbols = [list_length_password[:-2], list_length_password[-2:-1]]
     for item in list_variant_symbols:
         dispatcher.add_process(list_length_password=item)
 
