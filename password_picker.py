@@ -1,11 +1,11 @@
 import itertools
 import time
 import datetime
-
-import win32com.client as client
+import win32com.client as win32
 from string import digits, punctuation, ascii_letters
 
-PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xlsx'
+PATH = r'C:\Users\Professional\Desktop\pythonProjects\RECOVERY_Forgotten_password_EXCEL\book.xlsx'
+
 print("***Hello friend!***")
 
 # В однопоточном режиме 100 паролей перебираются   за 18 секунд
@@ -13,6 +13,21 @@ print("***Hello friend!***")
 #                       10000 паролей перебираются за 1800 секунд (30 минут)
 #                       [INFO] ---------- Password is: 101
 #                                               Скрипт отработал - 40.51 секунды
+
+
+def time_track(func):
+    # функция-декаратор, которая считает время работы
+    def surogate(*args, **kwargs):
+        start_time = time.time()
+
+        result = func(*args, **kwargs)
+
+        end_time= time.time()
+        result_time = end_time - start_time
+        print(f'Скрипт отработал - {round(result_time, 2)} секунды')
+        return result
+    return surogate
+
 
 def input_initial_data():
     # функция запрашивает исходные данные
@@ -25,9 +40,11 @@ def input_initial_data():
             print('некорректные данные')
             continue
 
-        choice = input("Если пароль содержит только цифры, введите: 1\nЕсли пароль содержит только буквы, введите: 2\n"
+        choice = input("Если пароль содержит только цифры, введите: 1\n"
+                       "Если пароль содержит только буквы, введите: 2\n"
                        "Если пароль содержит цифры и буквы введите: 3\n"
-                       "Если пароль содержит цифры, буквы и спецсимволы введите: 4\n------------>   ")
+                       "Если пароль содержит цифры, буквы и спецсимволы введите: 4\n"
+                       "------------>   ")
 
         dict_value = {
             '1': digits,  # 0123456789
@@ -43,24 +60,27 @@ def input_initial_data():
             print('Введите корректные данные!!!')
 
 
-def password_entry(password, count):
-    # функция запускает клиент и проверяет пароль
-
-    open_doc = client.Dispatch("Excel.Application")
+def password_entry(path, password, count):
+    #
+    # Open an existing workbook
+    #
+    excel = win32.gencache.EnsureDispatch('Excel.Application')
+    excel.Visible = 0
     try:
-        open_doc.Workbooks.Open(
-            PATH,
-            False,
-            True,
-            None,
-            password
+        excel.Workbooks.Open(
+            Filename=path,
+            UpdateLinks=False,
+            ReadOnly=True,
+            Format=None,
+            Password=password
         )
-        time.sleep(0.1)
         print(f"[INFO] ---------- Password is: {password}")
         with open('password.txt', mode='w', encoding='utf-8') as file:
             file.write(password)
         return False
-    except:
+    except Exception as exc:
+        # print(exc)
+        time.sleep(0.2)
         print(f"Attempt {count} Incorrect {password}")
     return True
 
@@ -82,16 +102,18 @@ def get_list_10K():
     return my_list_10K
 
 
-def enumeration_all_variant(password_length, possible_symbols, count):
+@time_track
+def enumeration_all_variants(password_length, possible_symbols, count):
     for pass_length in range(password_length[0], password_length[1] + 1):
         for password in itertools.product(possible_symbols, repeat=pass_length):
             password = "".join(password)
             count += 1
-            result = password_entry(password=password, count=count)
+            result = password_entry(path=PATH, password=password, count=count)
             if result is False:
                 return False
     print('Не удалось найти пароль, возможно вы ввели неверные данные!!!')
     return False
+
 
 
 def time_running_script(min_characters, max_characters, possible_symbols):
@@ -107,20 +129,6 @@ def time_running_script(min_characters, max_characters, possible_symbols):
         print('Python не переведёт это число в дни и годы')
 
 
-def time_track(func):
-    # функция-декаратор, которая считает время работы
-    def surogate(*args, **kwargs):
-        start_time = time.time()
-
-        result = func(*args, **kwargs)
-
-        end_time= time.time()
-        result_time = end_time - start_time
-        print(f'Скрипт отработал - {round(result_time, 2)} секунды')
-        return result
-    return surogate
-
-@time_track
 def main():
     # шаг 1 запрос исходных данных
     pass_length, possible_symbols = input_initial_data()
@@ -149,7 +157,7 @@ def main():
         #     break
 
         # шаг 4 - бональный перебор всех возможных комбинаций
-        result = enumeration_all_variant(password_length=pass_length, possible_symbols=possible_symbols, count=count)
+        result = enumeration_all_variants(password_length=pass_length, possible_symbols=possible_symbols, count=count)
         if result is False:
             break
 
