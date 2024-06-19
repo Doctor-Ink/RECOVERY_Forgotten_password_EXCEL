@@ -1,6 +1,5 @@
-__pycache__/
 .idea/
 .vscode/
+__pycache__/
 env/
-10M/
 probe.py
