@@ -131,7 +131,7 @@ def time_running_script(min_characters, max_characters, possible_symbols):
 
 def main():
     # шаг 1 запрос исходных данных
-    # pass_length, possible_symbols = input_initial_data()
+    pass_length, possible_symbols = input_initial_data()
     time_running_script(min_characters=pass_length[0], max_characters=pass_length[-1], possible_symbols=possible_symbols)
     count = 0
     while True:
