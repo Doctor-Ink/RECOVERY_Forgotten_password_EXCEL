@@ -41,6 +41,7 @@ def input_initial_data():
 
         if choice in dict_value.keys():
             possible_symbols = dict_value[choice]
+            # possible_symbols = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_$@*()'
             return list_length_password, possible_symbols
         else:
             print('Введите корректные данные!!!')

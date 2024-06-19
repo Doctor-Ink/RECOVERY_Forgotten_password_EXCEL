@@ -1,4 +1,5 @@
 # RECOVERY_Forgotten_password_EXCEL
+####   https://habr.com/ru/news/t/509346/
 Проект создан для подбора пароля к эксель файлу
 простой подбор пароля содержит файл password_picker.py
 

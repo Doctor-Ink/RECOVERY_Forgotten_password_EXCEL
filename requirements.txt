@@ -1,3 +1,0 @@
-pip~=22.0.4
-pywin32~=304
-setuptools~=58.1.0
