@@ -49,8 +49,8 @@ def input_initial_data():
         dict_value = {
             '1': digits,  # 0123456789
             '2': ascii_letters,  # abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
-            '3': digits + ascii_letters,  # 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
-            '4': digits + ascii_letters + punctuation,  # !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+            '3': ascii_letters + digits,  # abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+            '4': ascii_letters + digits + punctuation,  # !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
         }
 
         if choice in dict_value.keys():
@@ -119,10 +119,10 @@ def enumeration_all_variants(password_length, possible_symbols, count):
 def time_running_script(min_characters, max_characters, possible_symbols):
     total_count = 0
     for step in range(min_characters, max_characters + 1):
-        # print(f'Для пароля из {step} символа(ов) - \n{len(possible_symbols) ** step} комбинаций')
+        print(f'Для пароля из {step} символа(ов) - \n{len(possible_symbols) ** step} комбинаций')
         total_count += len(possible_symbols) ** step
     try:
-        time_format = str(datetime.timedelta(seconds= (total_count * 0.18)))
+        time_format = str(datetime.timedelta(seconds= (total_count / 6)))
         print(f"Общее число комбинаций - {total_count}\n "
               f"Расчётное время работы - {time_format} секунд")
     except Exception as exc:
@@ -132,11 +132,10 @@ def time_running_script(min_characters, max_characters, possible_symbols):
 def main():
     # шаг 1 запрос исходных данных
     pass_length, possible_symbols = input_initial_data()
-    time_running_script(min_characters=pass_length[0], max_characters=pass_length[1], possible_symbols=possible_symbols)
-
+    time_running_script(min_characters=pass_length[0], max_characters=pass_length[-1], possible_symbols=possible_symbols)
     count = 0
     while True:
-        # # шаг 2 - перебираем из 150 популярных паролей в России
+        # шаг 2 - перебираем из 150 популярных паролей в России
         # my_list_150 = get_list_150()
         # for item in my_list_150:
         #     count += 1
@@ -145,10 +144,30 @@ def main():
         #         break
         # if result is False:
         #     break
-        #
-        # # шаг 3 - перебор списка из 10 000 популярных паролей в мире
+
+        # шаг 3 - перебор списка из 10 000 популярных паролей в мире
         # my_list_10K = get_list_10K()
         # for item in my_list_10K:
+        #     count += 1
+        #     result = password_entry(password=item, count=count)
+        #     if result is False:
+        #         break
+        # if result is False:
+        #     break
+
+        # шаг 4 - перебор списка из 1 000 000 популярных паролей в мире
+        # my_list_1M = get_list_1M()
+        # for item in my_list_1M:
+        #     count += 1
+        #     result = password_entry(password=item, count=count)
+        #     if result is False:
+        #         break
+        # if result is False:
+        #     break
+
+        # шаг 5 - перебор списка из 10 000 000 популярных паролей в мире
+        # my_list_10M = get_list_10M()
+        # for item in my_list_10M:
         #     count += 1
         #     result = password_entry(password=item, count=count)
         #     if result is False:
