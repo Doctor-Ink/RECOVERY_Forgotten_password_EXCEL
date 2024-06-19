@@ -3,39 +3,11 @@ import time
 import datetime
 import win32com.client as win32
 from string import digits, punctuation, ascii_letters
+from password_picker import input_initial_data
 
 PATH = r'C:\Users\Professional\Desktop\pythonProjects\RECOVERY_Forgotten_password_EXCEL\book.xlsx'
 print("***Hello friend!***")
 
-
-def input_initial_data():
-    # функция запрашивает исходные данные
-
-    while True:
-        password_length = input("Введите длину пароля, от скольки - до скольки символов, например 3-7: ")
-        if ('-' in password_length) and (password_length.replace('-', '').isdigit()):
-            password_length = [int(item) for item in password_length.split('-')]
-        else:
-            print('некорректные данные')
-            continue
-
-        choice = input("Если пароль содержит только цифры, введите: 1\n"
-                       "Если пароль содержит только буквы, введите: 2\n"
-                       "Если пароль содержит цифры и буквы введите: 3\n"
-                       "Если пароль содержит цифры, буквы и спецсимволы введите: 4\n------------>   ")
-
-        dict_value = {
-            '1': digits,  # 0123456789
-            '2': ascii_letters,  # abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
-            '3': digits + ascii_letters,  # 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
-            '4': digits + ascii_letters + punctuation,  # !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
-        }
-
-        if choice in dict_value.keys():
-            possible_symbols = dict_value[choice]
-            return password_length, possible_symbols
-        else:
-            print('Введите корректные данные!!!')
 
 
 def password_entry(path, password, count):
