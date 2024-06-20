@@ -6,4 +6,4 @@ Attempt 5 Incorrect 004
 Attempt 6 Incorrect 005
 Attempt 7 Incorrect 006
 [INFO] ---------- Password is: 007
-Скрипт отработал - 22.85 секунды
+Скрипт отработал - 18.78 секунды

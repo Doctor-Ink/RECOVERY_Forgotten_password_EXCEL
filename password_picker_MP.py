@@ -1,62 +1,55 @@
 import itertools
 import time
 from datetime import datetime
-import win32com.client as client
-from multiprocessing import Process, Value
+import win32com.client as win32
+from multiprocessing import Process, Manager, Queue
 import pythoncom
 from string import digits, punctuation, ascii_letters
 import datetime
-from password_picker import time_track, input_initial_data
+from password_picker import time_track, input_initial_data, time_running_script
+from password_picker_MT import generator_passw
 
+PATH = r'C:\Users\Professional\Desktop\pythonProjects\RECOVERY_Forgotten_password_EXCEL\Book1.xlsx'
 
-PATH = r'C:\Users\Zver\PycharmProjects\RECOVERY_Forgotten_password_EXCEL\book.xlsx'
-
-# разделим на 3 процесса
-# В 3-ёxппроцессорном режиме
-#                       [INFO] ---------- Password is: 101
-#                        Скрипт отработал - 58.05 секунды
-
-
-def time_running_script(min_characters, max_characters, possible_symbols):
-    total_count = 0
-    for step in range(min_characters, max_characters + 1):
-        print(f'Для пароля из {step} символа(ов) - \n{len(possible_symbols) ** step} комбинаций')
-        total_count += len(possible_symbols) ** step
-    try:
-        time_format = str(datetime.timedelta(seconds= (total_count * 0.1)))
-        print(f"Общее число комбинаций - {total_count}\n "
-              f"Расчётное время работы - {time_format} секунд")
-    except Exception as exc:
-        print('Python не переведёт это число в дни и годы')
+# разделим на 4 процесса
+# В 4-ёxппроцессорном режиме
+#                       [INFO] ---------- see log
 
 
 class Picker(Process):
-    def __init__(self, need_stop, list_length_password, possible_symbols, *args, **kwargs):
+    def __init__(self, path, queue, need_stop, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.path = path
+        self.queue = queue
         self.need_stop = need_stop
-        self.list_length_password = list_length_password
-        self.possible_symbols = possible_symbols
 
     def run(self):
-        for pass_length in range(self.list_length_password[0], self.list_length_password[-1] + 1):
-            for password in itertools.product(self.possible_symbols, repeat=pass_length):
-                password = "".join(password)
-                self.password_entry(password=password)
-        print('Не удалось найти пароль, возможно вы ввели неверные данные!!!')
+        while not self.need_stop.value or not self.queue.empty():
+            password_list = self.queue.get()
+            for password in password_list:
+                if self.need_stop.value:
+                    break
+                self.password_entry(password)
+            self.queue.task_done()
+        if not self.need_stop.value:
+            print('Не удалось найти пароль, возможно вы ввели неверные данные!!!')
+
     def password_entry(self, password):
         # функция запускает клиент и проверяет пароль
         try:
             # Сразу перед инициализацией DCOM в run()
             pythoncom.CoInitializeEx(0)
             # brute excel doc
-            open_doc = client.Dispatch("Excel.Application")
-            open_doc.Workbooks.Open(PATH, False, True, None, password)
+            excel = win32.gencache.EnsureDispatch('Excel.Application')
+            excel.Visible = 0
+            excel.Workbooks.Open(self.path, False, True, None, password)
             time.sleep(0.1)
             print(f"[INFO] ---------- Password is: {password}")
             with open('password.txt', mode='w', encoding='utf-8') as file:
                 file.write(password)
-            self.need_stop.value = 1
-        except:
+            self.need_stop.value = True
+        except Exception as exc:
+            # print(exc)
             print(f"Incorrect {password}")
 
 
@@ -70,26 +63,24 @@ def main():
         possible_symbols=possible_symbols
     )
 
-    need_stop = Value('i', 0)
-    # создаём количество потоков
-    list_variant_symbols = [list_length_password[:-2], list_length_password[-2:-1], [list_length_password[-1]]]
+    manager = Manager()
+    need_stop = manager.Value('i', False)
+    queue = manager.Queue()
 
-    list_processes = []
-    for item in list_variant_symbols:
-        current = Picker(need_stop=need_stop, list_length_password=item, possible_symbols=possible_symbols)
-        list_processes.append(current)
-    for proc in list_processes:
-        proc.start()
+    # Generate password lists and add them to the queue
+    for password_list in generator_passw(password_length=list_length_password, possible_symbols=possible_symbols):
+        queue.put(password_list)
 
-    while list_processes:
-        for proc in list_processes:
-            if proc.need_stop.value == 1:  # завершить по его значению
-                for proc in list_processes:
-                    proc.terminate()
-                    list_processes.remove(proc)
-                    print(f'KILL {proc}')
-                break
-        time.sleep(1)
+    # Create and start processes
+    processes = []
+    for _ in range(4):
+        process = Picker(path=PATH, queue=queue, need_stop=need_stop)
+        processes.append(process)
+        process.start()
+
+    # Wait for all processes to complete
+    for process in processes:
+        process.join()
 
 
 if __name__ == '__main__':

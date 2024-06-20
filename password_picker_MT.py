@@ -13,10 +13,9 @@ from password_picker import time_track, input_initial_data, time_running_script
 PATH = r"C:\Users\Professional\Desktop\pythonProjects\RECOVERY_Forgotten_password_EXCEL\Book1.xlsx"
 
 
-# разделим на 3 потока
-# В 3-ёxпоточном режиме
-#                       [INFO] ---------- Password is: 101
-#                               Скрипт отработал - 94.57 секунды
+# разделим на 4 потока
+# В 4-ёxпоточном режиме
+#                       [INFO] ---------- see log
 
 class Picker(Thread):
     def __init__(self, path, queue, need_stop, *args, **kwargs):

@@ -6,13 +6,11 @@ from string import digits, punctuation, ascii_letters
 
 PATH = r'C:\Users\Professional\Desktop\pythonProjects\RECOVERY_Forgotten_password_EXCEL\Book1.xlsx'
 
-print("***Hello friend!***")
 
-# В однопоточном режиме 100 паролей перебираются   за 18 секунд
-#                       1000 паролей перебираются  за 180 секунд (3 минуты)
-#                       10000 паролей перебираются за 1800 секунд (30 минут)
-#                       [INFO] ---------- Password is: 101
-#                                               Скрипт отработал - 40.51 секунды
+# В однопоточном режиме за 1 минуту   -  25 паролей 
+# в многопоточном режиме  за 1 минуту  - 160 паролей
+# в многопроцессорном режиме за 1 минуту -  143 пароля
+
 
 
 def time_track(func):
@@ -131,6 +129,7 @@ def time_running_script(min_characters, max_characters, possible_symbols):
 
 @time_track
 def main():
+    print("***Hello friend!***")
     # шаг 1 запрос исходных данных
     pass_length, possible_symbols = input_initial_data()
     time_running_script(min_characters=pass_length[0], max_characters=pass_length[-1], possible_symbols=possible_symbols)
