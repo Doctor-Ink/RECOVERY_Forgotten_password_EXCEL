@@ -4,7 +4,7 @@ import datetime
 import win32com.client as win32
 from string import digits, punctuation, ascii_letters
 
-PATH = r'C:\Users\Professional\Desktop\pythonProjects\RECOVERY_Forgotten_password_EXCEL\book.xlsx'
+PATH = r'C:\Users\Professional\Desktop\pythonProjects\RECOVERY_Forgotten_password_EXCEL\Book1.xlsx'
 
 print("***Hello friend!***")
 
@@ -102,7 +102,7 @@ def get_list_10K():
     return my_list_10K
 
 
-@time_track
+
 def enumeration_all_variants(password_length, possible_symbols, count):
     for pass_length in range(password_length[0], password_length[1] + 1):
         for password in itertools.product(possible_symbols, repeat=pass_length):
@@ -129,6 +129,7 @@ def time_running_script(min_characters, max_characters, possible_symbols):
         print('Python не переведёт это число в дни и годы')
 
 
+@time_track
 def main():
     # шаг 1 запрос исходных данных
     pass_length, possible_symbols = input_initial_data()
