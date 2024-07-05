@@ -4,15 +4,13 @@ import datetime
 import win32com.client as win32
 from string import digits, punctuation, ascii_letters
 
-PATH = r'C:\Users\Professional\Desktop\pythonProjects\RECOVERY_Forgotten_password_EXCEL\book.xlsx'
+PATH = r'C:\Users\Professional\Desktop\pythonProjects\RECOVERY_Forgotten_password_EXCEL\Book1.xlsx'
 
-print("***Hello friend!***")
 
-# В однопоточном режиме 100 паролей перебираются   за 18 секунд
-#                       1000 паролей перебираются  за 180 секунд (3 минуты)
-#                       10000 паролей перебираются за 1800 секунд (30 минут)
-#                       [INFO] ---------- Password is: 101
-#                                               Скрипт отработал - 40.51 секунды
+# В однопоточном режиме за 1 минуту   -  25 паролей 
+# в многопоточном режиме  за 1 минуту  - 160 паролей
+# в многопроцессорном режиме за 1 минуту -  143 пароля
+
 
 
 def time_track(func):
@@ -33,8 +31,8 @@ def input_initial_data():
     # функция запрашивает исходные данные
 
     while True:
-        password_length = input("Введите длину пароля, от скольки - до скольки символов, например 3 - 7: ")
-        if ('-' in password_length) and (password_length.replace('-', '').isdigit()):
+        password_length = input("Введите длину пароля, от скольки - до скольки символов, например 3-7: ")
+        if '-' in password_length and password_length[0].isdigit() and password_length[-1].isdigit():
             password_length = [int(item) for item in password_length.split('-')]
         else:
             print('некорректные данные')
@@ -80,7 +78,7 @@ def password_entry(path, password, count):
         return False
     except Exception as exc:
         # print(exc)
-        time.sleep(0.2)
+        time.sleep(0.1)
         print(f"Attempt {count} Incorrect {password}")
     return True
 
@@ -102,7 +100,7 @@ def get_list_10K():
     return my_list_10K
 
 
-@time_track
+
 def enumeration_all_variants(password_length, possible_symbols, count):
     for pass_length in range(password_length[0], password_length[1] + 1):
         for password in itertools.product(possible_symbols, repeat=pass_length):
@@ -129,7 +127,9 @@ def time_running_script(min_characters, max_characters, possible_symbols):
         print('Python не переведёт это число в дни и годы')
 
 
+@time_track
 def main():
+    print("***Hello friend!***")
     # шаг 1 запрос исходных данных
     pass_length, possible_symbols = input_initial_data()
     time_running_script(min_characters=pass_length[0], max_characters=pass_length[-1], possible_symbols=possible_symbols)
