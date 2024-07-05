@@ -31,8 +31,8 @@ def input_initial_data():
     # функция запрашивает исходные данные
 
     while True:
-        password_length = input("Введите длину пароля, от скольки - до скольки символов, например 3 - 7: ")
-        if ('-' in password_length) and (password_length.replace('-', '').isdigit()):
+        password_length = input("Введите длину пароля, от скольки - до скольки символов, например 3-7: ")
+        if '-' in password_length and password_length[0].isdigit() and password_length[-1].isdigit():
             password_length = [int(item) for item in password_length.split('-')]
         else:
             print('некорректные данные')
@@ -78,7 +78,7 @@ def password_entry(path, password, count):
         return False
     except Exception as exc:
         # print(exc)
-        time.sleep(0.2)
+        time.sleep(0.1)
         print(f"Attempt {count} Incorrect {password}")
     return True
 

@@ -1,11 +1,7 @@
-import itertools
 import time
-from datetime import datetime
 import win32com.client as win32
 from multiprocessing import Process, Manager, Queue
 import pythoncom
-from string import digits, punctuation, ascii_letters
-import datetime
 from password_picker import time_track, input_initial_data, time_running_script
 from password_picker_MT import generator_passw
 
