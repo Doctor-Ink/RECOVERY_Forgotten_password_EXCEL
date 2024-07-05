@@ -97,7 +97,6 @@ def main():
     for lst_psw in generator_passw(password_length=list_length_password, possible_symbols=possible_symbols):
         if stop_event.is_set():
             break
-        print(queue)
         queue.put(lst_psw)
 
     queue.join()
