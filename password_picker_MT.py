@@ -21,7 +21,6 @@ class Picker(Thread):
         self.queue = queue
         self.stop_event = stop_event
 
-
     def run(self):
         while not self.stop_event.is_set() or not self.queue.empty():
             try:
@@ -40,7 +39,6 @@ class Picker(Thread):
 
         if not self.stop_event.is_set():
             print('Не удалось найти пароль, возможно вы ввели неверные данные!!!')
-
 
     def password_entry(self, password):
         # функция запускает клиент и проверяет пароль
@@ -75,6 +73,7 @@ def generator_passw(password_length, possible_symbols):
                 result = []
     if result:
         yield result
+
 
 @time_track
 def main():
