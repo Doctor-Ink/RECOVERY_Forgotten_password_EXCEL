@@ -70,7 +70,6 @@ def generator_passw(password_length, possible_symbols):
             result.append(password)
             count += 1
             if count % 1000 == 0:
-                print(result)
                 yield result
                 result = []
     if result:
